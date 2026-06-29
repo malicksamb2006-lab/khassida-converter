@@ -1,0 +1,5 @@
+[console_scripts]
+woeusb = WoeUSB.core:run
+
+[gui_scripts]
+woeusbgui = WoeUSB.gui:run

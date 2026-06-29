@@ -1,0 +1,234 @@
+[
+    {
+        "search": "المؤمنون",
+        "replace": "الْمُؤْمِنُونَ"
+    },
+    {
+        "search": "والقانتون",
+        "replace": "وَالْقَانِتُونَ"
+    },
+    {
+        "search": "ئ",
+        "replace": "ئٕ"
+    },
+    {
+        "search": "بِسْمِ اللَّـهِ الرَّحْمَنِ الرَّحِيمِ",
+        "replace": "بِسْمِ اللَّـهِ الرَّحْمَـٰنِ الرَّحِيمِ"
+    },
+    {
+        "search": "آ",
+        "replace": "ءَا"
+    },
+    {
+        "search": "يَا اللَّـهُ",
+        "replace": "ِ يَا الَّلـهُ"
+    },
+    {
+        "search": "نْس",
+        "replace": "نس"
+    },
+    {
+        "search": "نْك",
+        "replace": "نك"
+    },
+    {
+        "search": "نْق",
+        "replace": "نق"
+    },
+    {
+        "search": "نْج",
+        "replace": "نج"
+    },
+    {
+        "search": "نْد",
+        "replace": "ند"
+    },
+    {
+        "search": "نْف",
+        "replace": "نف"
+    },
+    {
+        "search": "نْت",
+        "replace": "نت"
+    },
+    {
+        "search": "نْب",
+        "replace": "نب"
+    },
+    {
+        "search": "نْض",
+        "replace": "نض"
+    },
+    {
+        "search": "نْ س",
+        "replace": "ن ن"
+    },
+    {
+        "search": "نْ ك",
+        "replace": "ن ك"
+    },
+    {
+        "search": "نْ ق",
+        "replace": "ن ق"
+    },
+    {
+        "search": "نْ ج",
+        "replace": "ن ج"
+    },
+    {
+        "search": "نْ د",
+        "replace": "ن د"
+    },
+    {
+        "search": "نْ ف",
+        "replace": "ن ف"
+    },
+    {
+        "search": "نْ ت",
+        "replace": "ن ت"
+    },
+    {
+        "search": "نْ ب",
+        "replace": "ن ب"
+    },
+    {
+        "search": "نْ ض",
+        "replace": "ن ض"
+    },
+    {
+        "search": "ى ب",
+        "replace": "ىٰ ب"
+    },
+    {
+        "search": "ى ت",
+        "replace": "ىٰ ت"
+    },
+    {
+        "search": "ى ث",
+        "replace": "ىٰ ث"
+    },
+    {
+        "search": "ى ج",
+        "replace": "ىٰ ج"
+    },
+    {
+        "search": "ى ح",
+        "replace": "ىٰ ح"
+    },
+    {
+        "search": "ى خ",
+        "replace": "ىٰ خ"
+    },
+    {
+        "search": "ى د",
+        "replace": "ىٰ د"
+    },
+    {
+        "search": "ى ذ",
+        "replace": "ىٰ ذ"
+    },
+    {
+        "search": "ى ر",
+        "replace": "ىٰ ر"
+    },
+    {
+        "search": "ى ز",
+        "replace": "ىٰ ز"
+    },
+    {
+        "search": "ى س",
+        "replace": "ىٰ س"
+    },
+    {
+        "search": "ى ش",
+        "replace": "ىٰ ش"
+    },
+    {
+        "search": "ى ص",
+        "replace": "ىٰ ص"
+    },
+    {
+        "search": "ى ض",
+        "replace": "ىٰ ض"
+    },
+    {
+        "search": "ى ط",
+        "replace": "ىٰ ط"
+    },
+    {
+        "search": "ى ظ",
+        "replace": "ىٰ ظ"
+    },
+    {
+        "search": "ى ع",
+        "replace": "ىٰ ع"
+    },
+    {
+        "search": "ى غ",
+        "replace": "ىٰ غ"
+    },
+    {
+        "search": "ى ف",
+        "replace": "ىٰ ف"
+    },
+    {
+        "search": "ى ق",
+        "replace": "ىٰ ق"
+    },
+    {
+        "search": "ى ك",
+        "replace": "ىٰ ك"
+    },
+    {
+        "search": "ى ل",
+        "replace": "ىٰ ل"
+    },
+    {
+        "search": "ى م",
+        "replace": "ىٰ م"
+    },
+    {
+        "search": "ى ن",
+        "replace": "ىٰ ن"
+    },
+    {
+        "search": "ى هـ",
+        "replace": "ىٰ هـ"
+    },
+    {
+        "search": "ى و",
+        "replace": "ىٰ و"
+    },
+    {
+        "search": "ى ي",
+        "replace": "ىٰ ي"
+    },
+    {
+        "search": "ى ء",
+        "replace": "ىٰ ء"
+    },
+    {
+        "search": "ى إ",
+        "replace": "ىٰ إ"
+    },
+    {
+        "search": "ى ؤ",
+        "replace": "ىٰ ؤ"
+    },
+    {
+        "search": "ى ئ",
+        "replace": "ىٰ ئ"
+    },
+    {
+        "search": "ى آ",
+        "replace": "ىٰ آ"
+    },
+    {
+        "search": "ى ة",
+        "replace": "ىٰ ة"
+    },
+    {
+        "search": "ى ى",
+        "replace": "ىٰ ى"
+    }
+]

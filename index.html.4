@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Mouṣḥaf Warsh · Contrôle des règles</title>
+    <style>
+        /* ================= POLICES ================= */
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+        @font-face {
+            font-family: 'MMoustaphaArabe';
+            src: url('Fonts/MMOUSTAPHAarabe/MMOUSTAPHAarabe.woff2') format('woff2'),
+                 url('Fonts/MMOUSTAPHAarabe/MMOUSTAPHAarabe.woff') format('woff'),
+                 url('Fonts/MMOUSTAPHAarabe/MMOUSTAPHAarabe.ttf') format('truetype'),
+                 url('Fonts/MMOUSTAPHAarabe/MMOUSTAPHAarabe.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Sahel';
+            src: url('Fonts/sahel/Sahel-SemiBold.woff') format('woff'),
+                 url('Fonts/sahel/Sahel-SemiBold.ttf') format('truetype'),
+                 url('Fonts/sahel/Sahel-SemiBold.otf') format('opentype');
+            font-weight: 600;
+            font-style: normal;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: linear-gradient(145deg, #f6f4f0 0%, #eae6df 100%); font-family: 'Segoe UI', Roboto, sans-serif; color: #2c2822; padding: 2rem 1.5rem; line-height: 1.4; }
+        .app-container { max-width: 1450px; margin: 0 auto; }
+        .card { background: #fffef7; border-radius: 2rem; box-shadow: 0 12px 28px rgba(0,0,0,0.08); padding: 1.3rem 1.8rem; margin-bottom: 1.8rem; border: 1px solid #f0e7db; }
+        header { text-align: center; margin-bottom: 1.5rem; }
+        h1 { font-size: 1.9rem; font-weight: 600; background: linear-gradient(135deg, #2d5f3e, #b97f3a); background-clip: text; -webkit-background-clip: text; color: transparent; }
+        .soustitre { color: #6b4c2c; font-size: 0.95rem; }
+
+        /* Barre d'outils */
+        .global-toolbar-card { padding: 0.8rem 1.5rem; background: #fffdf9; border: 1px solid #e1d7c7; border-radius: 1.5rem; margin-bottom: 1.5rem; }
+        .toolbar-container { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .target-selector { display: flex; background: #ebdcc7; padding: 0.25rem; border-radius: 0.8rem; gap: 0.2rem; }
+        .btn-target { background: transparent; border: none; padding: 0.4rem 1.2rem; font-size: 0.85rem; font-weight: bold; color: #55442f; border-radius: 0.6rem; cursor: pointer; }
+        .btn-target.active { background: #2c5f3e; color: white; }
+        .tb-group { display: flex; align-items: center; gap: 0.4rem; }
+        .tb-separator { width: 1px; height: 24px; background-color: #e2dacd; margin: 0 0.2rem; }
+        .tb-btn { background: white; border: 1px solid #dcd6cd; border-radius: 0.6rem; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.95rem; font-weight: 600; color: #443c33; }
+        .tb-btn.active { background: #1e2965; color: white; }
+        .tb-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        .tb-label { font-size: 0.85rem; color: #554c40; font-weight: 600; }
+        .tb-value { font-size: 1rem; font-weight: bold; min-width: 28px; text-align: center; }
+        .tb-slider { width: 120px; height: 6px; background: #dcd6cd; border-radius: 3px; cursor: pointer; }
+
+        /* Commutateurs des règles */
+        .rules-switch-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.8rem;
+            background: #f4efe8;
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            margin-top: 0.6rem;
+        }
+        .rule-switch {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.75rem;
+            background: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 2rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .rule-switch input { margin: 0; width: 14px; height: 14px; cursor: pointer; }
+        .rule-switch label { font-weight: normal; cursor: pointer; color: #3a2c1c; }
+
+        /* Panneaux texte */
+        .panes-wrapper { display: flex; flex-wrap: wrap; gap: 1.8rem; }
+        .pane { flex: 1; min-width: 320px; display: flex; flex-direction: column; gap: 0.5rem; }
+        .pane-header { display: flex; justify-content: space-between; }
+        .indicator-dot { width: 10px; height: 10px; border-radius: 50%; background: #dcd6cd; }
+        .pane.targeted .indicator-dot { background: #2c5f3e; box-shadow: 0 0 8px #2c5f3e; }
+        .arabic-text {
+            padding: 1.2rem;
+            border-radius: 1.2rem;
+            border: 1px solid #ddcfbf;
+            min-height: 350px;
+            max-height: 500px;
+            overflow-y: auto;
+            width: 100%;
+            direction: rtl;
+            text-align: right;
+            transition: border-color 0.2s;
+        }
+        .pane.targeted .arabic-text { border-color: #2c5f3e; box-shadow: 0 0 0 1px #2c5f3e; }
+        .input-area { font-family: 'Sahel', 'Amiri', serif; background: #fffcf5; }
+        .result-area {
+            font-family: 'MMoustaphaArabe', serif;
+            background: #fefaf2;
+            color: #113322;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .result-area .diacritic { color: #e34234; font-weight: normal; }
+        .button-wrap { display: flex; justify-content: center; margin-top: 0.5rem; }
+        .btn-primary { background: #2c6e46; border: none; padding: 0.8rem 2rem; border-radius: 3rem; font-size: 1rem; font-weight: bold; color: white; cursor: pointer; transition: 0.2s; }
+        .btn-primary:hover { background: #1f5436; transform: translateY(-2px); }
+        .mini-actions { display: flex; justify-content: flex-end; margin-top: 0.2rem; }
+        .btn-mini { background: #e2d9cf; border: none; padding: 0.4rem 1.2rem; border-radius: 2rem; font-size: 0.8rem; cursor: pointer; }
+
+        /* Règles personnalisées */
+        .rules-container { margin-top: 0.8rem; }
+        .add-rule-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 2px solid #f0e7db; }
+        .rule-field { flex: 1; min-width: 180px; }
+        .rule-field label { display: block; font-size: 0.75rem; color: #8b7356; }
+        .rule-field input { width: 100%; padding: 0.5rem 0.7rem; border-radius: 1rem; border: 1px solid #ddcfbf; background: white; font-family: 'Sahel', 'Amiri', monospace; direction: rtl; }
+        .btn-add-rule { background: #aa7c48; color: white; border: none; padding: 0.5rem 1.5rem; border-radius: 2rem; font-weight: bold; cursor: pointer; }
+        .rules-list { background: #fdfaf4; border-radius: 1rem; padding: 0.5rem; max-height: 200px; overflow-y: auto; }
+        .rule-item { display: flex; justify-content: space-between; background: white; margin: 0.5rem 0; padding: 0.5rem 1rem; border-radius: 2rem; border: 1px solid #e8dfd3; }
+        .rule-pattern.arabic { font-family: 'Sahel', 'Amiri', serif; font-size: 1rem; direction: rtl; background: #f4efea; padding: 0.2rem 0.6rem; border-radius: 1rem; }
+        .rule-delete { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #b97f3a; }
+        .btn-reset-rules { background: #e9e1d6; border: none; padding: 0.3rem 1rem; border-radius: 2rem; margin-top: 0.5rem; cursor: pointer; }
+        footer { text-align: center; font-size: 0.75rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e2d9cf; }
+
+        @media (max-width: 950px) { body { padding: 1rem; } .panes-wrapper { flex-direction: column; } }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <header>
+        <h1>📜 تصحيح الخواص · Warsh (règles activables)</h1>
+        <!-- warsh-rules.js chargé ici -->
+    <script src="warsh-rules.js"></script>
+    <p class="soustitre">Undo/Redo fonctionnels. Règles Warsh enrichies avec warsh-rules.js</p>
+    </header>
+
+    <!-- Barre d'outils -->
+    <div class="card global-toolbar-card">
+        <div class="toolbar-container">
+            <div class="tb-group">
+                <span class="tb-label">Appliquer à :</span>
+                <div class="target-selector">
+                    <button class="btn-target active" id="targetInputBtn">📝 Saisie</button>
+                    <button class="btn-target" id="targetOutputBtn">📖 Résultat</button>
+                </div>
+            </div>
+            <div class="tb-separator"></div>
+            <div class="tb-group">
+                <button class="tb-btn" id="actionUndo">↶</button>
+                <button class="tb-btn" id="actionRedo">↷</button>
+            </div>
+            <div class="tb-separator"></div>
+            <div class="tb-group">
+                <span class="tb-label">Taille:</span>
+                <button class="tb-btn" id="actionDecSize">—</button>
+                <span class="tb-value" id="actionSizeVal">22</span>
+                <button class="tb-btn" id="actionIncSize">+</button>
+            </div>
+            <div class="tb-separator"></div>
+            <div class="tb-group">
+                <span class="tb-label">Interligne:</span>
+                <button class="tb-btn" id="actionDecLineHeight">—</button>
+                <span class="tb-value" id="actionLineHeightVal">2.2</span>
+                <button class="tb-btn" id="actionIncLineHeight">+</button>
+                <input type="range" id="actionLineHeightSlider" class="tb-slider" min="0.1" max="5.0" step="0.1" value="2.2">
+            </div>
+            <div class="tb-separator"></div>
+            <div class="tb-group">
+                <button class="tb-btn" id="actionBold">B</button>
+                <button class="tb-btn" id="actionItalic">I</button>
+                <button class="tb-btn" id="actionUnderline">U</button>
+            </div>
+            <div class="tb-separator"></div>
+            <div class="tb-group">
+                <button class="tb-btn active" id="actionAlignRight">⬅</button>
+                <button class="tb-btn" id="actionJustify">⊞</button>
+                <button class="tb-btn" id="actionAlignLeft">➔</button>
+            </div>
+        </div>
+
+        <!-- Commutateurs des règles Warsh -->
+        <div class="rules-switch-group">
+            <span style="font-size:0.75rem; color:#6b4c2c;">⚙️ Règles Warsh :</span>
+            <div class="rule-switch"><input type="checkbox" id="ruleBasicNaql" checked><label for="ruleBasicNaql">Naql de base</label></div>
+            <div class="rule-switch"><input type="checkbox" id="ruleExtendedNaql"><label for="ruleExtendedNaql">Naql étendu</label></div>
+            <div class="rule-switch"><input type="checkbox" id="ruleIltiqaa" checked><label for="ruleIltiqaa">Iltiqā' sākinayn</label></div>
+            <div class="rule-switch"><input type="checkbox" id="ruleMaddBadal" checked><label for="ruleMaddBadal">Madd Badal</label></div>
+            <div class="rule-switch"><input type="checkbox" id="ruleIqlab" checked><label for="ruleIqlab">Iqlāb</label></div>
+            <div class="rule-switch"><input type="checkbox" id="ruleMaddSilah" checked><label for="ruleMaddSilah">Madd Ṣilah</label></div>
+            <div class="rule-switch"><input type="checkbox" id="ruleMaddLeen" checked><label for="ruleMaddLeen">Madd Līn</label></div>
+            <div class="rule-switch"><input type="checkbox" id="ruleMaddAna" checked><label for="ruleMaddAna">Madd Ānā</label></div>
+            <div class="rule-switch"><input type="checkbox" id="ruleImala" checked><label for="ruleImala">Imāla</label></div>
+            <div class="rule-switch"><input type="checkbox" id="ruleTasheel" checked><label for="ruleTasheel">Tasheel</label></div>
+            <div class="rule-switch"><input type="checkbox" id="ruleIbdaal"><label for="ruleIbdaal">Ibdaal</label></div>
+            <div class="rule-switch"><input type="checkbox" id="ruleIdghamShamsi" checked><label for="ruleIdghamShamsi">Idgham Shamsi</label></div>
+            <div class="rule-switch"><input type="checkbox" id="ruleIzhaar" checked><label for="ruleIzhaar">Izhaar</label></div>
+            <div class="rule-switch"><input type="checkbox" id="ruleQalb"><label for="ruleQalb">Qalb (Warsh)</label></div>
+        </div>
+    </div>
+
+    <!-- Panneaux de texte -->
+    <div class="card traitement-card">
+        <div class="panes-wrapper">
+            <div class="pane targeted" id="paneInput">
+                <div class="pane-header">
+                    <label>📝 Saisie (Sahel)</label>
+                    <div class="indicator-dot"></div>
+                </div>
+                <textarea id="inputText" class="arabic-text input-area" dir="rtl" placeholder="Texte arabe…"></textarea>
+                <div class="button-wrap">
+                    <button id="btnConvert" class="btn-primary">✨ Appliquer les règles sélectionnées</button>
+                </div>
+            </div>
+            <div class="pane" id="paneOutput">
+                <div class="pane-header">
+                    <label>📖 Résultat (MMoustaphaArabe)</label>
+                    <div class="indicator-dot"></div>
+                </div>
+                <div id="outputText" class="arabic-text result-area" contenteditable="true" dir="rtl"></div>
+                <div class="mini-actions">
+                    <button id="btnCopyResult" class="btn-mini">📋 Copier brut</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Règles personnalisées -->
+    <div class="card">
+        <h3>⚙️ Règles personnalisées (après Warsh)</h3>
+        <div class="rules-container">
+            <div class="add-rule-form">
+                <div class="rule-field">
+                    <label>📝 Texte à remplacer</label>
+                    <input type="text" id="ruleSearchInput" dir="rtl">
+                </div>
+                <div class="rule-field">
+                    <label>✨ Remplacer par</label>
+                    <input type="text" id="ruleReplaceInput" dir="rtl">
+                </div>
+                <button id="btnAddRule" class="btn-add-rule">➕ Ajouter</button>
+            </div>
+            <div id="rulesListContainer" class="rules-list"></div>
+            <div style="text-align: right;"><button id="btnResetRules" class="btn-reset-rules">🗑️ Réinitialiser</button></div>
+        </div>
+    </div>
+    <footer>✔ Undo/Redo fonctionnels. Diacritiques colorés sans casser les ligatures (لا).</footer>
+</div>
+
+<script>
+    // ======================== CONSTANTES UNICODE ========================
+    const UW = {
+        FATHA: '\u064E', DAMMA: '\u064F', KASRA: '\u0650', SUKUN: '\u0652', SHADDA: '\u0651',
+        TANWEEN_FATHA: '\u064B', TANWEEN_DAMMA: '\u064C', TANWEEN_KASRA: '\u064D',
+        ALIF: '\u0627', BA: '\u0628', LAM: '\u0644', MEEM: '\u0645', NOON: '\u0646', WAW: '\u0648', YA: '\u064A', ALIF_MAKSURA: '\u0649',
+        HAMZA: '\u0621', HAMZA_ON_ALIF: '\u0623', HAMZA_BELOW_ALIF: '\u0625', HAMZA_ON_WAW: '\u0624', HAMZA_ON_YA: '\u0626',
+        WASLA: '\u0671', SMALL_WAW: '\u06E5', MADDA_SIGN: '\u0653', IMALA_POINT: '\u06EC', IQLAB_MEEM: '\u06E2',
+        MADDA_ALIF: '\u0622', ALIF_KHANJARIYA: '\u0670'
+    };
+    const ARABIC_LETTERS = '[\u0621-\u063A\u0641-\u064A]';
+    const HAMZA_FORMS = `(?:${UW.HAMZA}|${UW.HAMZA_ON_ALIF}|${UW.HAMZA_BELOW_ALIF}|${UW.HAMZA_ON_WAW}|${UW.HAMZA_ON_YA})`;
+    const VOWELS = `(?:${UW.FATHA}|${UW.DAMMA}|${UW.KASRA})`;
+    const ALL_DIACRITICS = '[\u064B-\u0652\u0655-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7-\u06E8\u06EA-\u06ED]';
+
+    // ======================== FONCTIONS WARSH ========================
+    function applyBasicNaql(text) {
+        let result = text;
+        result = result.replace(new RegExp(`رِدْء${UW.TANWEEN_FATHA}`, 'g'), `رِد${UW.TANWEEN_FATHA}`);
+        const regex = new RegExp(`(${ARABIC_LETTERS})(${UW.SUKUN})(\\s*)(${HAMZA_FORMS})(${VOWELS})`, 'gu');
+        result = result.replace(regex, (_, cons, _suk, spaces, _ham, vowel) => `${cons}${vowel}`);
+        return result;
+    }
+    function applyExtendedNaql(text) {
+        const regex = new RegExp(`${UW.ALIF}${UW.LAM}${UW.HAMZA_ON_ALIF}(${UW.FATHA}|${UW.DAMMA}|${UW.KASRA})`, 'g');
+        return text.replace(regex, (_, vowel) => `${UW.LAM}${vowel}`);
+    }
+    function applyIltiqaaSakinayn(text) {
+        const regex = new RegExp(`(${ARABIC_LETTERS})(${UW.SUKUN})(\\s*${UW.WASLA})`, 'gu');
+        return text.replace(regex, (_, cons, _suk, wasla) => `${cons}${UW.DAMMA}${wasla}`);
+    }
+    function applyMaddBadal(text) {
+        let r = text;
+        r = r.replace(new RegExp(`(${UW.HAMZA_ON_ALIF}|${UW.ALIF})${ALL_DIACRITICS}*(${UW.ALIF})`, 'g'), UW.MADDA_ALIF);
+        r = r.replace(new RegExp(`(${UW.HAMZA_ON_ALIF}|${UW.HAMZA_ON_WAW})${ALL_DIACRITICS}*(${UW.WAW})`, 'g'), `${UW.DAMMA}${UW.WAW}${UW.MADDA_SIGN}`);
+        r = r.replace(new RegExp(`(${UW.HAMZA_BELOW_ALIF}|${UW.HAMZA_ON_YA})${ALL_DIACRITICS}*(${UW.YA})`, 'g'), `${UW.KASRA}${UW.YA}${UW.MADDA_SIGN}`);
+        return r;
+    }
+    function applyMaddSilah(text) {
+        const regex = new RegExp(`(${UW.MEEM})(${UW.DAMMA})(?=\\s*${ALL_DIACRITICS}*${HAMZA_FORMS})`, 'gu');
+        return text.replace(regex, `$1$2${UW.SMALL_WAW}`);
+    }
+    function applyMaddLeen(text) {
+        const regex = new RegExp(`(${ARABIC_LETTERS})(${UW.FATHA})(${UW.WAW}|${UW.YA})(${UW.SUKUN})`, 'gu');
+        return text.replace(regex, (_, cons, fatha, letter, sukun) => `${cons}${fatha}${letter}${sukun}${UW.MADDA_SIGN}`);
+    }
+    function applyMaddAna(text) {
+        const ana = `${UW.ALIF}${UW.NOON}${UW.ALIF}`;
+        const regex = new RegExp(`(${ana})(\\s*${ALL_DIACRITICS}*)(${HAMZA_FORMS})`, 'gu');
+        return text.replace(regex, (match, anaWord, spaceDiac, hamza) => {
+            const after = text.slice(text.indexOf(match) + match.length);
+            if (after.trim().startsWith('إلا')) return match;
+            return `${anaWord.substring(0, anaWord.length-1)}${UW.MADDA_SIGN}${anaWord.slice(-1)}${spaceDiac}${hamza}`;
+        });
+    }
+    function applyImala(text) {
+        const regex = new RegExp(`(${UW.ALIF_MAKSURA})(?=[\\s\\p{P}]|$)`, 'gu');
+        return text.replace(regex, `$1${UW.IMALA_POINT}`);
+    }
+    function applyIqlab(text) {
+        const noonSakin = `${UW.NOON}${UW.SUKUN}`;
+        const tanwins = `(${UW.TANWEEN_FATHA}|${UW.TANWEEN_DAMMA}|${UW.TANWEEN_KASRA})`;
+        const regex = new RegExp(`(${noonSakin}|${tanwins})(${ALL_DIACRITICS}*\\s*)(${UW.BA})`, 'gu');
+        return text.replace(regex, (_, src, spaces, ba) => {
+            if (src.includes(UW.NOON)) return `${UW.NOON}${UW.IQLAB_MEEM}${spaces}${ba}`;
+            else return `${UW.IQLAB_MEEM}${spaces}${ba}`;
+        });
+    }
+
+    // ======================== NOUVELLES RÈGLES WARSH ========================
+    function applyTasheel(text) {
+        // Tasheel: Allègement de la hamza (hamzatayn consécutives)
+        // Deux hamza consécutives → une seule hamza
+        const regex = new RegExp(UW.HAMZA + UW.HAMZA, 'g');
+        let r = text.replace(regex, UW.HAMZA_ON_ALIF);
+        // أأ → آ (alif madda)
+        r = r.replace(new RegExp(UW.HAMZA_ON_ALIF + UW.HAMZA_ON_ALIF, 'g'), UW.MADDA_ALIF);
+        return r;
+    }
+    function applyIbdaal(text) {
+        // Ibdaal: Remplacement de hamza par alif en début de mot avec fatha
+        const regex = new RegExp('(^|\\s)' + UW.HAMZA_ON_ALIF, 'g');
+        return text.replace(regex, '$1' + UW.ALIF);
+    }
+    function applyIdghamShamsi(text) {
+        // Idgham Shamsi: Assimilation du lam (ال) + lettre solaire → shadda
+        const shamsiLetters = 'ت ث د ذ ر ز س ش ص ض ط ظ ل ن';
+        const letters = shamsiLetters.split(' ');
+        let result = text;
+        letters.forEach(function(l) {
+            const regex = new RegExp(UW.ALIF + UW.LAM + l, 'g');
+            // Idgham: ال + lettre solaire → lettre + shadda (le lam disparaît)
+            result = result.replace(regex, l + UW.SHADDA);
+        });
+        // Gérer aussi le cas avec diacritiques sur le lam
+        const regex2 = new RegExp(UW.ALIF + UW.LAM + '[' + shamsiLetters.replace(/ /g, '') + ']', 'g');
+        result = result.replace(regex2, function(m) { return m.slice(-1) + UW.SHADDA; });
+        return result;
+    }
+    function applyIzhaar(text) {
+        // Izhaar: Noon Sakin + lettres halqiyya → manifestation claire
+        const halqiyya = ['ء', 'ح', 'خ', 'ع', 'غ', 'ه'];
+        let result = text;
+        // Izhaar: manifestation claire (noon sakin + lettre halqiyya)
+        // Remplace نْ + حرف حلقي → نْ + حرف حلقي (avec shadda sur la lettre halqiyya)
+        const halqStr = 'ءحخعغه';
+        const regexIzh = new RegExp(UW.NOON + UW.SUKUN + '([' + halqStr + '])', 'g');
+        result = result.replace(regexIzh, UW.NOON + UW.SUKUN + '$1');
+        return result;
+    }
+    function applyQalb(text) {
+        // Qalb (Warsh): Inversions spécifiques
+        let result = text;
+        // Règle Warsh: سؤال → سوال (hamza sur waw devient waw)
+        result = result.replace(/\u0633\u0624\u0627\u0644/g, '\u0633\u0648\u0627\u0644');
+        // ذئب → ذيب (hamza sur ya devient ya)
+        result = result.replace(/\u0630\u0626\u0628/g, '\u0630\u064A\u0628');
+        // بئر → ببير (hamza sur ya devient ya)
+        result = result.replace(/\u0628\u0626\u0631/g, '\u0628\u064A\u0631');
+        return result;
+    }
+    // ======================== SAUVEGARDE/CHARGEMENT DES RÈGLES ========================
+    let customRules = [];
+    async function loadRules() {
+        try {
+            const res = await fetch('/get-rules');
+            if (res.ok) { customRules = await res.json(); renderRulesList(); handleConvert(); }
+            else { customRules = []; renderRulesList(); handleConvert(); }
+        } catch(e) { customRules = []; renderRulesList(); handleConvert(); }
+    }
+    async function saveRules() {
+        try {
+            await fetch('/save-rules', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rules: customRules }) });
+        } catch(e) {}
+    }
+    function renderRulesList() {
+        const container = document.getElementById("rulesListContainer");
+        if (!container) return;
+        if (customRules.length === 0) { container.innerHTML = '<div style="text-align:center; color:#aa9c88;">Aucune règle</div>'; return; }
+        let html = '';
+        customRules.forEach((r, i) => {
+            html += `<div class="rule-item"><div class="rule-pattern arabic">🔍 ${escapeHtml(r.search)} → ✨ ${escapeHtml(r.replace)}</div><button class="rule-delete" data-index="${i}">✖</button></div>`;
+        });
+        container.innerHTML = html;
+        document.querySelectorAll('.rule-delete').forEach(btn => btn.addEventListener('click', (e) => { deleteRule(parseInt(btn.dataset.index)); }));
+    }
+    function escapeHtml(s) { return s.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+    async function addRule(s, r) { if (!s.trim()) return; customRules.push({ search: s.trim(), replace: r.trim() }); renderRulesList(); await saveRules(); handleConvert(); }
+    async function deleteRule(i) { customRules.splice(i,1); renderRulesList(); await saveRules(); handleConvert(); }
+    async function resetRules() { if (confirm("Effacer toutes les règles ?")) { customRules = []; renderRulesList(); await saveRules(); handleConvert(); } }
+
+    // ======================== COLORATION DES DIACRITIQUES ========================
+    function colorize(text) {
+        if (!text) return '';
+        let escaped = text.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+        let decomposed = escaped.normalize('NFD');
+        let colored = decomposed.replace(new RegExp(ALL_DIACRITICS, 'g'), match => `<span class="diacritic">${match}</span>`);
+        return colored;
+    }
+    function getPlainText() {
+        const div = document.getElementById("outputText");
+        const temp = document.createElement('div');
+        temp.innerHTML = div.innerHTML;
+        return temp.textContent || "";
+    }
+    function setOutputHtml(html) { document.getElementById("outputText").innerHTML = html; }
+
+    // ======================== CONVERSION ========================
+    function handleConvert() {
+        const raw = document.getElementById("inputText").value;
+        if (!raw.trim()) { setOutputHtml(''); return; }
+        let text = raw;
+        if (document.getElementById("ruleBasicNaql").checked) text = applyBasicNaql(text);
+        if (document.getElementById("ruleIltiqaa").checked) text = applyIltiqaaSakinayn(text);
+        if (document.getElementById("ruleExtendedNaql").checked) text = applyExtendedNaql(text);
+        if (document.getElementById("ruleMaddBadal").checked) text = applyMaddBadal(text);
+        if (document.getElementById("ruleIqlab").checked) text = applyIqlab(text);
+        if (document.getElementById("ruleMaddSilah").checked) text = applyMaddSilah(text);
+        if (document.getElementById("ruleMaddLeen").checked) text = applyMaddLeen(text);
+        if (document.getElementById("ruleMaddAna").checked) text = applyMaddAna(text);
+        if (document.getElementById("ruleImala").checked) text = applyImala(text);
+        if (document.getElementById("ruleTasheel").checked) text = applyTasheel(text);
+        if (document.getElementById("ruleIbdaal").checked) text = applyIbdaal(text);
+        if (document.getElementById("ruleIdghamShamsi").checked) text = applyIdghamShamsi(text);
+        if (document.getElementById("ruleIzhaar").checked) text = applyIzhaar(text);
+        if (document.getElementById("ruleQalb").checked) text = applyQalb(text);
+        for (let rule of customRules) {
+            const regex = new RegExp(rule.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+            text = text.replace(regex, rule.replace);
+        }
+        setOutputHtml(colorize(text));
+    }
+
+    // ======================== BARRE D'OUTILS ========================
+    const sectionsState = {
+        input: { fontSize: 22, lineHeight: "2.2", bold: false, italic: false, underline: false, textAlign: "right", history: [], historyIdx: -1 },
+        output: { fontSize: 50, lineHeight: "0.9", bold: false, italic: false, underline: false, textAlign: "right" }
+    };
+    let currentTarget = 'input';
+    const inputEl = document.getElementById("inputText");
+    const outputEl = document.getElementById("outputText");
+    const targetInput = document.getElementById("targetInputBtn");
+    const targetOutput = document.getElementById("targetOutputBtn");
+    const actUndo = document.getElementById("actionUndo");
+    const actRedo = document.getElementById("actionRedo");
+    const decSize = document.getElementById("actionDecSize");
+    const incSize = document.getElementById("actionIncSize");
+    const sizeVal = document.getElementById("actionSizeVal");
+    const decLH = document.getElementById("actionDecLineHeight");
+    const incLH = document.getElementById("actionIncLineHeight");
+    const sliderLH = document.getElementById("actionLineHeightSlider");
+    const lhVal = document.getElementById("actionLineHeightVal");
+    const boldBtn = document.getElementById("actionBold");
+    const italicBtn = document.getElementById("actionItalic");
+    const underlineBtn = document.getElementById("actionUnderline");
+    const alignR = document.getElementById("actionAlignRight");
+    const alignJ = document.getElementById("actionJustify");
+    const alignL = document.getElementById("actionAlignLeft");
+
+    function switchTarget(target) {
+        currentTarget = target;
+        if (currentTarget === 'input') {
+            targetInput.classList.add("active"); targetOutput.classList.remove("active");
+            document.getElementById("paneInput").classList.add("targeted"); document.getElementById("paneOutput").classList.remove("targeted");
+            actUndo.disabled = false; actRedo.disabled = false;
+        } else {
+            targetInput.classList.remove("active"); targetOutput.classList.add("active");
+            document.getElementById("paneInput").classList.remove("targeted"); document.getElementById("paneOutput").classList.add("targeted");
+            actUndo.disabled = true; actRedo.disabled = true;
+        }
+        syncToolbar();
+    }
+    function syncToolbar() {
+        const s = sectionsState[currentTarget];
+        sizeVal.textContent = s.fontSize;
+        sliderLH.value = s.lineHeight; lhVal.textContent = s.lineHeight;
+        boldBtn.classList.toggle("active", s.bold);
+        italicBtn.classList.toggle("active", s.italic);
+        underlineBtn.classList.toggle("active", s.underline);
+        [alignR, alignJ, alignL].forEach(b => b.classList.remove("active"));
+        if (s.textAlign === "right") alignR.classList.add("active");
+        if (s.textAlign === "justify") alignJ.classList.add("active");
+        if (s.textAlign === "left") alignL.classList.add("active");
+        applyStyleToCurrent();
+    }
+    function applyStyleToCurrent() {
+        const s = sectionsState[currentTarget];
+        const el = currentTarget === 'input' ? inputEl : outputEl;
+        el.style.fontSize = s.fontSize + "px";
+        el.style.lineHeight = s.lineHeight;
+        el.style.fontWeight = s.bold ? "bold" : "normal";
+        el.style.fontStyle = s.italic ? "italic" : "normal";
+        el.style.textDecoration = s.underline ? "underline" : "none";
+        el.style.textAlign = s.textAlign;
+    }
+    incSize.onclick = () => { let s = sectionsState[currentTarget]; if (s.fontSize < 120) { s.fontSize += s.fontSize>=50?5:2; if(s.fontSize>120) s.fontSize=120; sizeVal.textContent=s.fontSize; applyStyleToCurrent(); } };
+    decSize.onclick = () => { let s = sectionsState[currentTarget]; if (s.fontSize > 12) { s.fontSize -= s.fontSize>50?5:2; if(s.fontSize<12) s.fontSize=12; sizeVal.textContent=s.fontSize; applyStyleToCurrent(); } };
+    function setLH(v) { let n=parseFloat(v); if(isNaN(n)) return; n=Math.min(5,Math.max(0.1,n)); sectionsState[currentTarget].lineHeight=n.toFixed(1); sliderLH.value=sectionsState[currentTarget].lineHeight; lhVal.textContent=sectionsState[currentTarget].lineHeight; applyStyleToCurrent(); }
+    incLH.onclick = () => setLH(parseFloat(sectionsState[currentTarget].lineHeight)+0.1);
+    decLH.onclick = () => setLH(parseFloat(sectionsState[currentTarget].lineHeight)-0.1);
+    sliderLH.oninput = () => setLH(sliderLH.value);
+    boldBtn.onclick = () => { sectionsState[currentTarget].bold = !sectionsState[currentTarget].bold; syncToolbar(); };
+    italicBtn.onclick = () => { sectionsState[currentTarget].italic = !sectionsState[currentTarget].italic; syncToolbar(); };
+    underlineBtn.onclick = () => { sectionsState[currentTarget].underline = !sectionsState[currentTarget].underline; syncToolbar(); };
+    function clearAlign() { [alignR, alignJ, alignL].forEach(b=>b.classList.remove("active")); }
+    alignR.onclick = () => { clearAlign(); alignR.classList.add("active"); sectionsState[currentTarget].textAlign = "right"; applyStyleToCurrent(); };
+    alignJ.onclick = () => { clearAlign(); alignJ.classList.add("active"); sectionsState[currentTarget].textAlign = "justify"; applyStyleToCurrent(); };
+    alignL.onclick = () => { clearAlign(); alignL.classList.add("active"); sectionsState[currentTarget].textAlign = "left"; applyStyleToCurrent(); };
+
+    // ======================== HISTORIQUE UNDO/REDO (corrigé) ========================
+    function saveHistory() {
+        let state = sectionsState.input;
+        // Tronquer l'historique si on a fait un undo puis une nouvelle action
+        if (state.historyIdx < state.history.length - 1) {
+            state.history = state.history.slice(0, state.historyIdx + 1);
+        }
+        state.history.push(inputEl.value);
+        state.historyIdx++;
+    }
+    function undo() {
+        if (currentTarget !== 'input') return;
+        let state = sectionsState.input;
+        if (state.historyIdx > 0) {
+            state.historyIdx--;
+            inputEl.value = state.history[state.historyIdx];
+            handleConvert();
+        }
+    }
+    function redo() {
+        if (currentTarget !== 'input') return;
+        let state = sectionsState.input;
+        if (state.historyIdx < state.history.length - 1) {
+            state.historyIdx++;
+            inputEl.value = state.history[state.historyIdx];
+            handleConvert();
+        }
+    }
+    actUndo.onclick = undo;
+    actRedo.onclick = redo;
+    inputEl.addEventListener("input", function() {
+        saveHistory();
+        handleConvert(); // mise à jour à chaque frappe
+    });
+
+    // ======================== INITIALISATION ========================
+    document.getElementById("btnConvert").addEventListener("click", handleConvert);
+    document.getElementById("btnCopyResult").addEventListener("click", () => { navigator.clipboard.writeText(getPlainText()); });
+    document.getElementById("btnAddRule").addEventListener("click", () => { addRule(document.getElementById("ruleSearchInput").value, document.getElementById("ruleReplaceInput").value); document.getElementById("ruleSearchInput").value = ""; document.getElementById("ruleReplaceInput").value = ""; });
+    document.getElementById("btnResetRules").addEventListener("click", resetRules);
+    targetInput.onclick = () => switchTarget('input');
+    targetOutput.onclick = () => switchTarget('output');
+    applyStyleToCurrent();
+    inputEl.value = "قَدْ أَفْلَحَ الْمُؤْمِنُونَ وَالْقَانِتُونَ وَالْفَائِزُونَ مِنْ قَبْلِ";
+    // Initialiser l'historique
+    sectionsState.input.history = [inputEl.value];
+    sectionsState.input.historyIdx = 0;
+    loadRules().then(() => handleConvert());
+
+    const checkboxes = ["ruleBasicNaql","ruleExtendedNaql","ruleIltiqaa","ruleMaddBadal","ruleIqlab","ruleMaddSilah","ruleMaddLeen","ruleMaddAna","ruleImala","ruleTasheel","ruleIbdaal","ruleIdghamShamsi","ruleIzhaar","ruleQalb"];
+    checkboxes.forEach(id => document.getElementById(id).addEventListener("change", handleConvert));
+</script>
+</body>
+</html>
