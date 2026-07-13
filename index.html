@@ -16,6 +16,7 @@
                  url('Fonts/MMOUSTAPHAarabe/MMOUSTAPHAarabe.otf') format('opentype');
             font-weight: normal;
             font-style: normal;
+            font-display: swap;
         }
 
         @font-face {
@@ -25,6 +26,7 @@
                  url('Fonts/sahel/Sahel-SemiBold.otf') format('opentype');
             font-weight: 600;
             font-style: normal;
+            font-display: swap;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -50,29 +52,19 @@
         .tb-value { font-size: 1rem; font-weight: bold; min-width: 28px; text-align: center; }
         .tb-slider { width: 120px; height: 6px; background: #dcd6cd; border-radius: 3px; cursor: pointer; }
 
-        /* Commutateur Iẓhār */
-        .rules-switch-group {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 0.8rem;
-            background: #f4efe8;
-            padding: 0.4rem 1rem;
-            border-radius: 2rem;
-            margin-top: 0.6rem;
-        }
-        .rule-switch {
-            display: flex;
+        /* Badge métrique */
+        #metreBadgeGroup {
+            background: #e9f5ec;
+            padding: 0.2rem 0.8rem;
+            border-radius: 1rem;
+            border: 1px solid #c8e6c9;
+            display: none;
             align-items: center;
             gap: 0.3rem;
-            font-size: 0.75rem;
-            background: white;
-            padding: 0.2rem 0.6rem;
-            border-radius: 2rem;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            white-space: nowrap;
         }
-        .rule-switch input { margin: 0; width: 14px; height: 14px; cursor: pointer; }
-        .rule-switch label { font-weight: normal; cursor: pointer; color: #3a2c1c; }
+        #metreBadgeGroup .tb-label { font-size: 1.1rem; }
+        #metreDisplay { font-weight: 600; color: #1e4620; font-size: 0.85rem; }
 
         /* Panneaux texte */
         .panes-wrapper { display: flex; flex-wrap: wrap; gap: 1.8rem; }
@@ -129,7 +121,7 @@
 <div class="app-container">
     <header>
         <h1>📜 تصحيح الخواص · Tajweed sénégalais</h1>
-        <p class="soustitre">Ikhfā’, Iẓhār, Maddah — règles personnalisables</p>
+        <p class="soustitre">Ikhfā’, Maddah — règles personnalisables</p>
     </header>
 
     <!-- Barre d'outils -->
@@ -174,14 +166,11 @@
                 <button class="tb-btn" id="actionJustify">⊞</button>
                 <button class="tb-btn" id="actionAlignLeft">➔</button>
             </div>
-        </div>
-
-        <!-- Commutateur Iẓhār -->
-        <div class="rules-switch-group">
-            <span style="font-size:0.75rem; color:#6b4c2c;">⚙️ Options :</span>
-            <div class="rule-switch">
-                <input type="checkbox" id="toggleIzhaar" checked>
-                <label for="toggleIzhaar">Activer Iẓhār</label>
+            <div class="tb-separator"></div>
+            <!-- BADGE MÉTRIQUE -->
+            <div class="tb-group" id="metreBadgeGroup">
+                <span class="tb-label">📜</span>
+                <span id="metreDisplay">Mètre : en cours…</span>
             </div>
         </div>
     </div>
@@ -231,283 +220,10 @@
             <div style="text-align: right;"><button id="btnResetRules" class="btn-reset-rules">🗑️ Réinitialiser</button></div>
         </div>
     </div>
-    <footer>✔ Undo/Redo fonctionnels. Diacritiques colorés sans casser les ligatures (لا).</footer>
+    <footer>✔ Undo/Redo fonctionnels · Règles chargées depuis rules.json</footer>
 </div>
 
-<!-- ============= MODULE PRINCIPAL (importe tajweed-engine.js) ============= -->
-<script type="module">
-    // Import du moteur tajweed
-    import { processTajweed, colorize } from './tajweed-engine.js';
-
-    // ======================== RÈGLES PERSONNALISÉES (avec persistance via fetch) ========================
-    let customRules = [];
-
-    async function loadRules() {
-        try {
-            const res = await fetch('/get-rules');
-            if (res.ok) {
-                customRules = await res.json();
-            } else {
-                customRules = [];
-            }
-        } catch (e) {
-            console.warn('Impossible de charger les règles depuis le serveur, utilisation du stockage mémoire.');
-            customRules = [];
-        }
-        renderRulesList();
-        handleConvert();
-    }
-
-    async function saveRules() {
-        try {
-            await fetch('/save-rules', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ rules: customRules })
-            });
-        } catch (e) {
-            console.warn('Impossible de sauvegarder les règles sur le serveur, stockage local uniquement.');
-        }
-    }
-
-    function renderRulesList() {
-        const container = document.getElementById("rulesListContainer");
-        if (!container) return;
-        if (customRules.length === 0) {
-            container.innerHTML = '<div style="text-align:center; color:#aa9c88;">Aucune règle</div>';
-            return;
-        }
-        let html = '';
-        customRules.forEach((r, i) => {
-            html += `<div class="rule-item"><div class="rule-pattern arabic">🔍 ${escapeHtml(r.search)} → ✨ ${escapeHtml(r.replace)}</div><button class="rule-delete" data-index="${i}">✖</button></div>`;
-        });
-        container.innerHTML = html;
-        document.querySelectorAll('.rule-delete').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const idx = parseInt(btn.dataset.index);
-                await deleteRule(idx);
-            });
-        });
-    }
-
-    function escapeHtml(s) { return s.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
-
-    async function addRule(s, r) {
-        if (!s.trim()) return;
-        customRules.push({ search: s.trim(), replace: r.trim() });
-        renderRulesList();
-        await saveRules();
-        handleConvert();
-    }
-
-    async function deleteRule(i) {
-        customRules.splice(i, 1);
-        renderRulesList();
-        await saveRules();
-        handleConvert();
-    }
-
-    async function resetRules() {
-        if (confirm("Effacer toutes les règles ?")) {
-            customRules = [];
-            renderRulesList();
-            await saveRules();
-            handleConvert();
-        }
-    }
-
-    // ======================== CONVERSION AVEC TAJWEED ========================
-    function handleConvert() {
-        const raw = document.getElementById("inputText").value;
-        if (!raw.trim()) {
-            document.getElementById("outputText").innerHTML = '';
-            return;
-        }
-
-        // Récupérer l'état du commutateur Iẓhār
-        const runIzhaar = document.getElementById("toggleIzhaar").checked;
-
-        // Appeler le moteur avec les règles personnalisées
-        const processed = processTajweed(raw, {
-            runIzhaar: runIzhaar,
-            customRules: customRules
-        });
-
-        // Coloriser les diacritiques
-        const colored = colorize(processed);
-        document.getElementById("outputText").innerHTML = colored;
-    }
-
-    // ======================== BARRE D'OUTILS (inchangée) ========================
-    const sectionsState = {
-        input: { fontSize: 22, lineHeight: "2.2", bold: false, italic: false, underline: false, textAlign: "right", history: [], historyIdx: -1 },
-        output: { fontSize: 50, lineHeight: "0.9", bold: false, italic: false, underline: false, textAlign: "right" }
-    };
-    let currentTarget = 'input';
-    const inputEl = document.getElementById("inputText");
-    const outputEl = document.getElementById("outputText");
-    const targetInput = document.getElementById("targetInputBtn");
-    const targetOutput = document.getElementById("targetOutputBtn");
-    const actUndo = document.getElementById("actionUndo");
-    const actRedo = document.getElementById("actionRedo");
-    const decSize = document.getElementById("actionDecSize");
-    const incSize = document.getElementById("actionIncSize");
-    const sizeVal = document.getElementById("actionSizeVal");
-    const decLH = document.getElementById("actionDecLineHeight");
-    const incLH = document.getElementById("actionIncLineHeight");
-    const sliderLH = document.getElementById("actionLineHeightSlider");
-    const lhVal = document.getElementById("actionLineHeightVal");
-    const boldBtn = document.getElementById("actionBold");
-    const italicBtn = document.getElementById("actionItalic");
-    const underlineBtn = document.getElementById("actionUnderline");
-    const alignR = document.getElementById("actionAlignRight");
-    const alignJ = document.getElementById("actionJustify");
-    const alignL = document.getElementById("actionAlignLeft");
-
-    function switchTarget(target) {
-        currentTarget = target;
-        if (currentTarget === 'input') {
-            targetInput.classList.add("active"); targetOutput.classList.remove("active");
-            document.getElementById("paneInput").classList.add("targeted"); document.getElementById("paneOutput").classList.remove("targeted");
-            actUndo.disabled = false; actRedo.disabled = false;
-        } else {
-            targetInput.classList.remove("active"); targetOutput.classList.add("active");
-            document.getElementById("paneInput").classList.remove("targeted"); document.getElementById("paneOutput").classList.add("targeted");
-            actUndo.disabled = true; actRedo.disabled = true;
-        }
-        syncToolbar();
-    }
-
-    function syncToolbar() {
-        const s = sectionsState[currentTarget];
-        sizeVal.textContent = s.fontSize;
-        sliderLH.value = s.lineHeight; lhVal.textContent = s.lineHeight;
-        boldBtn.classList.toggle("active", s.bold);
-        italicBtn.classList.toggle("active", s.italic);
-        underlineBtn.classList.toggle("active", s.underline);
-        [alignR, alignJ, alignL].forEach(b => b.classList.remove("active"));
-        if (s.textAlign === "right") alignR.classList.add("active");
-        if (s.textAlign === "justify") alignJ.classList.add("active");
-        if (s.textAlign === "left") alignL.classList.add("active");
-        applyStyleToCurrent();
-    }
-
-    function applyStyleToCurrent() {
-        const s = sectionsState[currentTarget];
-        const el = currentTarget === 'input' ? inputEl : outputEl;
-        el.style.fontSize = s.fontSize + "px";
-        el.style.lineHeight = s.lineHeight;
-        el.style.fontWeight = s.bold ? "bold" : "normal";
-        el.style.fontStyle = s.italic ? "italic" : "normal";
-        el.style.textDecoration = s.underline ? "underline" : "none";
-        el.style.textAlign = s.textAlign;
-    }
-
-    incSize.onclick = () => {
-        let s = sectionsState[currentTarget];
-        if (s.fontSize < 120) {
-            s.fontSize += s.fontSize >= 50 ? 5 : 2;
-            if (s.fontSize > 120) s.fontSize = 120;
-            sizeVal.textContent = s.fontSize;
-            applyStyleToCurrent();
-        }
-    };
-    decSize.onclick = () => {
-        let s = sectionsState[currentTarget];
-        if (s.fontSize > 12) {
-            s.fontSize -= s.fontSize > 50 ? 5 : 2;
-            if (s.fontSize < 12) s.fontSize = 12;
-            sizeVal.textContent = s.fontSize;
-            applyStyleToCurrent();
-        }
-    };
-
-    function setLH(v) {
-        let n = parseFloat(v);
-        if (isNaN(n)) return;
-        n = Math.min(5, Math.max(0.1, n));
-        sectionsState[currentTarget].lineHeight = n.toFixed(1);
-        sliderLH.value = sectionsState[currentTarget].lineHeight;
-        lhVal.textContent = sectionsState[currentTarget].lineHeight;
-        applyStyleToCurrent();
-    }
-    incLH.onclick = () => setLH(parseFloat(sectionsState[currentTarget].lineHeight) + 0.1);
-    decLH.onclick = () => setLH(parseFloat(sectionsState[currentTarget].lineHeight) - 0.1);
-    sliderLH.oninput = () => setLH(sliderLH.value);
-
-    boldBtn.onclick = () => { sectionsState[currentTarget].bold = !sectionsState[currentTarget].bold; syncToolbar(); };
-    italicBtn.onclick = () => { sectionsState[currentTarget].italic = !sectionsState[currentTarget].italic; syncToolbar(); };
-    underlineBtn.onclick = () => { sectionsState[currentTarget].underline = !sectionsState[currentTarget].underline; syncToolbar(); };
-
-    function clearAlign() { [alignR, alignJ, alignL].forEach(b => b.classList.remove("active")); }
-    alignR.onclick = () => { clearAlign(); alignR.classList.add("active"); sectionsState[currentTarget].textAlign = "right"; applyStyleToCurrent(); };
-    alignJ.onclick = () => { clearAlign(); alignJ.classList.add("active"); sectionsState[currentTarget].textAlign = "justify"; applyStyleToCurrent(); };
-    alignL.onclick = () => { clearAlign(); alignL.classList.add("active"); sectionsState[currentTarget].textAlign = "left"; applyStyleToCurrent(); };
-
-    // ======================== UNDO / REDO ========================
-    function saveHistory() {
-        let state = sectionsState.input;
-        if (state.historyIdx < state.history.length - 1) {
-            state.history = state.history.slice(0, state.historyIdx + 1);
-        }
-        state.history.push(inputEl.value);
-        state.historyIdx++;
-    }
-
-    function undo() {
-        if (currentTarget !== 'input') return;
-        let state = sectionsState.input;
-        if (state.historyIdx > 0) {
-            state.historyIdx--;
-            inputEl.value = state.history[state.historyIdx];
-            handleConvert();
-        }
-    }
-
-    function redo() {
-        if (currentTarget !== 'input') return;
-        let state = sectionsState.input;
-        if (state.historyIdx < state.history.length - 1) {
-            state.historyIdx++;
-            inputEl.value = state.history[state.historyIdx];
-            handleConvert();
-        }
-    }
-
-    actUndo.onclick = undo;
-    actRedo.onclick = redo;
-    inputEl.addEventListener("input", function() {
-        saveHistory();
-        handleConvert();
-    });
-
-    // ======================== INITIALISATION ========================
-    document.getElementById("btnConvert").addEventListener("click", handleConvert);
-    document.getElementById("btnCopyResult").addEventListener("click", () => {
-        const div = document.getElementById("outputText");
-        const temp = document.createElement('div');
-        temp.innerHTML = div.innerHTML;
-        navigator.clipboard.writeText(temp.textContent || "");
-    });
-    document.getElementById("btnAddRule").addEventListener("click", async () => {
-        await addRule(
-            document.getElementById("ruleSearchInput").value,
-            document.getElementById("ruleReplaceInput").value
-        );
-        document.getElementById("ruleSearchInput").value = "";
-        document.getElementById("ruleReplaceInput").value = "";
-    });
-    document.getElementById("btnResetRules").addEventListener("click", resetRules);
-    targetInput.onclick = () => switchTarget('input');
-    targetOutput.onclick = () => switchTarget('output');
-    document.getElementById("toggleIzhaar").addEventListener("change", handleConvert);
-
-    applyStyleToCurrent();
-    inputEl.value = "قَدْ أَفْلَحَ الْمُؤْمِنُونَ وَالْقَانِتُونَ وَالْفَائِزُونَ مِنْ قَبْلِ";
-    sectionsState.input.history = [inputEl.value];
-    sectionsState.input.historyIdx = 0;
-
-    loadRules().then(() => handleConvert());
-</script>
+<!-- ============= MODULE PRINCIPAL ============= -->
+<script type="module" src="./dist/app.js"></script>
 </body>
 </html>

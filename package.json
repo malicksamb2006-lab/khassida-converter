@@ -1,16 +1,26 @@
 {
   "name": "khassida-converter",
   "version": "1.0.0",
-  "main": "server.js",
+  "description": "Outil de correction du Tajweed pour les khassidas sénégalaises",
+  "main": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node serve.js",
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -p tsconfig.json --watch",
+    "serve": "node serve.js --port=3000"
   },
-  "keywords": [],
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/malicksamb2006-lab/khassida-converter.git"
+  },
   "author": "",
   "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "express": "^5.2.1"
-  }
+  "bugs": {
+    "url": "https://github.com/malicksamb2006-lab/khassida-converter/issues"
+  },
+  "homepage": "https://github.com/malicksamb2006-lab/khassida-converter#readme"
 }
